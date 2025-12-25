@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Manager — Real Madrid</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <main class="container">
+    <a id="backLink" href="index.html">← Back</a>
+    <div id="manager"></div>
+  </main>
+  <script src="../data/managers.js"></script>
+  <script>
+    function niceYears(arr){ return Array.isArray(arr)?arr.join(', '):''; }
+
+    async function loadManager(){
+      const params = new URLSearchParams(location.search);
+      const id = params.get('id');
+      const target = document.getElementById('manager');
+      if(!id){ target.innerText = 'No manager specified.'; return; }
+
+      let data = window.MANAGER_DATA;
+      if(!data){ target.innerText = 'Manager data unavailable.'; return; }
+
+      const m = data.find(x=>x.id===id);
+      if(!m){ target.innerText = 'Manager not found.'; return; }
+      document.title = m.name + ' — Real Madrid';
+      const local = `../players/images/${m.id}.jpg`;
+      const fallback = m.image ? (m.image.startsWith('players/') ? ('../' + m.image) : m.image) : '';
+
+      const record = m.record || {};
+      target.innerHTML = `
+        <h1>${m.name}</h1>
+        <img src="${local}" alt="${m.name}" onerror="this.onerror=null;this.src='${fallback}';" style="max-width:360px;display:block;margin-bottom:12px">
+        <p><strong>Tenure:</strong> ${m.from || ''} — ${m.to || 'Present'}</p>
+        <p><strong>Record:</strong> ${record.wins||0}W • ${record.draws||0}D • ${record.losses||0}L</p>
+        <h3>Trophies</h3>
+        <ul>${(m.trophies||[]).map(t=>`<li><strong>${t.name}</strong>: ${t.count} — ${niceYears(t.years)}</li>`).join('')}</ul>
+        <p>${m.bio || ''}</p>
+      `;
+    }
+    loadManager();
+  </script>
+</body>
+</html>
